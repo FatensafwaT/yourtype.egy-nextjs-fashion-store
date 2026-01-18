@@ -40,7 +40,7 @@ export const useCartStore = create<CartState>()(
           if (existing) {
             return {
               items: state.items.map((x) =>
-                x.id === id ? { ...x, qty: x.qty + item.qty } : x,
+                x.id === id ? { ...x, qty: x.qty + item.qty } : x
               ),
             };
           }
@@ -58,7 +58,7 @@ export const useCartStore = create<CartState>()(
       incQty: (id) =>
         set((state) => ({
           items: state.items.map((x) =>
-            x.id === id ? { ...x, qty: x.qty + 1 } : x,
+            x.id === id ? { ...x, qty: x.qty + 1 } : x
           ),
         })),
 
@@ -72,11 +72,10 @@ export const useCartStore = create<CartState>()(
       clear: () => set({ items: [] }),
 
       totalItems: () => get().items.reduce((sum, x) => sum + x.qty, 0),
-      totalPrice: () =>
-        get().items.reduce((sum, x) => sum + x.price * x.qty, 0),
+      totalPrice: () => get().items.reduce((sum, x) => sum + x.price * x.qty, 0),
     }),
     {
       name: "yourtype_cart_v1",
-    },
-  ),
+    }
+  )
 );
