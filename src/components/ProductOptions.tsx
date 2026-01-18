@@ -2,6 +2,7 @@
 import { useWishlistStore } from "@/store/wishlist";
 import { useMemo, useState } from "react";
 import { useCartStore } from "@/store/cart";
+import { useToastStore } from "@/store/toast";
 
 export default function ProductOptions({
   colors,
@@ -23,9 +24,12 @@ export default function ProductOptions({
 
   const addItem = useCartStore((s) => s.addItem);
   const toggleWish = useWishlistStore((s) => s.toggle);
-  const isWished = useWishlistStore((s) => s.has(product.id));
+  const wishId = `${product.id}_${selectedColor}_${selectedSize}`;
+  const isWished = useWishlistStore((s) => s.has(wishId));
 
   const selectedColorLabel = useMemo(() => selectedColor, [selectedColor]);
+
+  const toast = useToastStore((s) => s.push);
 
   return (
     <div className="rounded-3xl border bg-white p-5 shadow-sm">
@@ -123,6 +127,7 @@ export default function ProductOptions({
             size: selectedSize,
             qty,
           });
+          toast("Added to cart");
         }}
         className="mt-5 w-full rounded-full bg-pink-400 py-3 font-medium text-white hover:bg-pink-500"
       >
@@ -131,14 +136,22 @@ export default function ProductOptions({
 
       <button
         type="button"
-        onClick={() =>
+        onClick={() => {
+          const willRemove = isWished;
           toggleWish({
             productId: product.id,
             name: product.name,
             price: product.price,
             image: product.image,
-          })
-        }
+            color: selectedColor,
+            size: selectedSize,
+          });
+
+          toast(
+            willRemove ? "Removed from wishlist" : "Added to wishlist",
+            "info",
+          );
+        }}
         className="mt-3 w-full rounded-full border bg-white py-3 font-medium hover:bg-purple-50"
       >
         {isWished ? "♥ In wishlist" : "♡ Add to wishlist"}

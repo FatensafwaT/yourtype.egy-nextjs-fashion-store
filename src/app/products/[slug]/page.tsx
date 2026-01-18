@@ -3,6 +3,7 @@ import Link from "next/link";
 import { products } from "@/data/products";
 import ProductOptions from "@/components/ProductOptions";
 import ProductGallery from "@/components/ProductGallery";
+import ProductCard from "@/components/ProductCard";
 
 export default async function ProductDetailsPage({
   params,
@@ -11,6 +12,9 @@ export default async function ProductDetailsPage({
 }) {
   const { slug } = await params;
   const product = products.find((p) => p.slug === slug);
+  const related = products
+    .filter((p) => p.id !== product?.id && p.category === product?.category)
+    .slice(0, 3);
 
   if (!product) {
     return (
@@ -99,6 +103,25 @@ export default async function ProductDetailsPage({
           </div>
         </div>
       </div>
+      {related.length > 0 && (
+        <section className="mt-10">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold">You may also like</h2>
+            <Link
+              href="/products"
+              className="text-sm text-pink-500 hover:underline"
+            >
+              View all
+            </Link>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
