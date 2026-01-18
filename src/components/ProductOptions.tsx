@@ -1,5 +1,5 @@
 "use client";
-
+import { useWishlistStore } from "@/store/wishlist";
 import { useMemo, useState } from "react";
 import { useCartStore } from "@/store/cart";
 
@@ -22,6 +22,8 @@ export default function ProductOptions({
   const [qty, setQty] = useState(1);
 
   const addItem = useCartStore((s) => s.addItem);
+  const toggleWish = useWishlistStore((s) => s.toggle);
+  const isWished = useWishlistStore((s) => s.has(product.id));
 
   const selectedColorLabel = useMemo(() => selectedColor, [selectedColor]);
 
@@ -127,8 +129,19 @@ export default function ProductOptions({
         Add to cart
       </button>
 
-      <button className="mt-3 w-full rounded-full border bg-white py-3 font-medium hover:bg-purple-50">
-        ♡ Add to wishlist
+      <button
+        type="button"
+        onClick={() =>
+          toggleWish({
+            productId: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+          })
+        }
+        className="mt-3 w-full rounded-full border bg-white py-3 font-medium hover:bg-purple-50"
+      >
+        {isWished ? "♥ In wishlist" : "♡ Add to wishlist"}
       </button>
     </div>
   );

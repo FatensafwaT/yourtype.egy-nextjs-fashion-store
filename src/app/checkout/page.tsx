@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCartStore } from "@/store/cart";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   fullName: z.string().min(3, "Please enter your full name"),
@@ -25,12 +27,14 @@ export default function CheckoutPage() {
   const totalItems = useCartStore((s) => s.totalItems());
   const totalPrice = useCartStore((s) => s.totalPrice());
   const clear = useCartStore((s) => s.clear);
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
+    setValue,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -39,6 +43,19 @@ export default function CheckoutPage() {
   });
 
   const payment = watch("payment");
+
+  useEffect(() => {
+    const raw = localStorage.getItem("yourtype_checkout_address_v1");
+    if (!raw) return;
+
+    try {
+      const saved = JSON.parse(raw) as Partial<FormValues>;
+      if (saved.fullName) setValue("fullName", saved.fullName);
+      if (saved.phone) setValue("phone", saved.phone);
+      if (saved.city) setValue("city", saved.city);
+      if (saved.address) setValue("address", saved.address);
+    } catch {}
+  }, [setValue]);
 
   if (items.length === 0) {
     return (
@@ -56,14 +73,56 @@ export default function CheckoutPage() {
   }
 
   const onSubmit = async (data: FormValues) => {
-    // Simulate request
     await new Promise((r) => setTimeout(r, 700));
 
-    console.log("ORDER:", { data, items, totalPrice });
+    // 1) Persist address (without payment/notes لو تحبي)
+    const addressToSave = {
+      fullName: data.fullName,
+      phone: data.phone,
+      city: data.city,
+      address: data.address,
+    };
+    localStorage.setItem(
+      "yourtype_checkout_address_v1",
+      JSON.stringify(addressToSave),
+    );
 
-    // For now: clear cart + simple success
+    // 2) Save last order summary for success page
+    const orderId = `YT-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+    localStorage.setItem(
+      "yourtype_last_order_v1",
+      JSON.stringify({
+        orderId,
+        totalItems,
+        totalPrice,
+        placedAt: new Date().toLocaleString(),
+      }),
+    );
+    // 2.5) Append to orders list
+    const ordersRaw = localStorage.getItem("yourtype_orders_v1");
+    const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
+
+    orders.unshift({
+      orderId,
+      totalItems,
+      totalPrice,
+      placedAt: new Date().toLocaleString(),
+      address: addressToSave,
+      items: items.map((x) => ({
+        name: x.name,
+        price: x.price,
+        qty: x.qty,
+        color: x.color,
+        size: x.size,
+        image: x.image,
+      })),
+    });
+
+    localStorage.setItem("yourtype_orders_v1", JSON.stringify(orders));
+
+    // 3) Clear cart + navigate
     clear();
-    alert("Order placed successfully! 💖 (demo)");
+    router.push("/checkout/success");
   };
 
   return (
@@ -145,20 +204,12 @@ export default function CheckoutPage() {
             <label className="text-sm font-medium">Payment</label>
             <div className="mt-2 grid gap-2 md:grid-cols-2">
               <label className="flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm">
-                <input
-                  type="radio"
-                  value="cod"
-                  {...register("payment")}
-                />
+                <input type="radio" value="cod" {...register("payment")} />
                 Cash on delivery
               </label>
 
               <label className="flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm">
-                <input
-                  type="radio"
-                  value="card"
-                  {...register("payment")}
-                />
+                <input type="radio" value="card" {...register("payment")} />
                 Card (demo)
               </label>
             </div>

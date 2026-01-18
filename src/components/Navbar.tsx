@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
 
 export default function Navbar() {
   const cartCount = useCartStore((s) => s.totalItems());
@@ -11,6 +12,7 @@ export default function Navbar() {
   const searchParams = useSearchParams();
   const currentQ = searchParams.get("q") ?? "";
   const [q, setQ] = useState(currentQ);
+  const wishCount = useWishlistStore((s) => s.count());
 
   useEffect(() => {
     setQ(currentQ);
@@ -63,6 +65,17 @@ export default function Navbar() {
             {cartCount > 0 && (
               <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-pink-400 px-1 text-xs font-semibold text-white">
                 {cartCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/wishlist"
+            className="relative rounded-full border bg-white px-3 py-2 text-sm hover:bg-pink-50"
+          >
+            💖 Wishlist
+            {wishCount > 0 && (
+              <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-purple-400 px-1 text-xs font-semibold text-white">
+                {wishCount}
               </span>
             )}
           </Link>
