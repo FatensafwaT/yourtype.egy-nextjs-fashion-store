@@ -6,7 +6,7 @@ export type Product = {
   category: "Tops" | "Dresses" | "Pants" | "Accessories";
   colors: string[];
   sizes: string[];
-  image: string;
+  images: string[];
 };
 
 export const products: Product[] = [
@@ -18,8 +18,11 @@ export const products: Product[] = [
     category: "Tops",
     colors: ["#CDB4DB", "#FFC8DD", "#BDE0FE"],
     sizes: ["XS", "S", "M", "L"],
-    image:
-      "https://images.unsplash.com/photo-1520975958225-4a3a7b6b6a3d?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://picsum.photos/seed/yourtype1/1200/1500",
+      "https://picsum.photos/seed/yourtype1b/1200/1500",
+      "https://picsum.photos/seed/yourtype1c/1200/1500",
+    ],
   },
   {
     id: "2",
@@ -29,8 +32,11 @@ export const products: Product[] = [
     category: "Tops",
     colors: ["#B8F2E6", "#FAE1DD"],
     sizes: ["S", "M", "L", "XL"],
-    image:
-      "https://images.unsplash.com/photo-1520975620134-82d4f7f1c6e6?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://picsum.photos/seed/yourtype2/1200/1500",
+      "https://picsum.photos/seed/yourtype2b/1200/1500",
+      "https://picsum.photos/seed/yourtype2c/1200/1500",
+    ],
   },
   {
     id: "3",
@@ -40,7 +46,10 @@ export const products: Product[] = [
     category: "Pants",
     colors: ["#FFC8DD", "#FFAFCC"],
     sizes: ["XS", "S", "M", "L"],
-    image:
-      "https://images.unsplash.com/photo-1520975869016-8a4b5b9aa6dd?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://picsum.photos/seed/yourtype3/1200/1500",
+      "https://picsum.photos/seed/yourtype3b/1200/1500",
+      "https://picsum.photos/seed/yourtype3c/1200/1500",
+    ],
   },
 ];
