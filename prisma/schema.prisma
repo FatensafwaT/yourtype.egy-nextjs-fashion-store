@@ -1,0 +1,20 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  price     Int
+  category  String
+  images    String
+  colors    String
+  sizes     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

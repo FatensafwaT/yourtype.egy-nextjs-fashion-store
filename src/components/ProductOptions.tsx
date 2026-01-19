@@ -13,6 +13,7 @@ export default function ProductOptions({
   sizes: string[];
   product: {
     id: string;
+    slug: string;
     name: string;
     price: number;
     image: string;
@@ -36,11 +37,11 @@ export default function ProductOptions({
       {/* Colors */}
       <div>
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium">Color</p>
+          <p className="text-sm font-medium text-gray-500">Color</p>
           <span className="text-xs text-gray-500">Selected</span>
         </div>
 
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2 text-gray-500">
           {colors.map((c) => {
             const isActive = c === selectedColor;
             return (
@@ -64,13 +65,13 @@ export default function ProductOptions({
       {/* Sizes */}
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium">Size</p>
-          <button className="text-sm text-pink-500 hover:underline">
+          <p className="text-sm font-medium text-gray-500">Size</p>
+          <button className="text-sm text-pink-500 hover:underline  text-gray-500">
             Size guide
           </button>
         </div>
 
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2 text-gray-500">
           {sizes.map((s) => {
             const isActive = s === selectedSize;
             return (
@@ -93,21 +94,21 @@ export default function ProductOptions({
 
       {/* Quantity (UI) */}
       <div className="mt-5 flex items-center justify-between">
-        <p className="text-sm font-medium">Quantity</p>
+        <p className="text-sm font-medium text-gray-500">Quantity</p>
         <div className="flex items-center gap-2 rounded-full border bg-white px-2 py-1">
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
-            className="h-8 w-8 rounded-full hover:bg-gray-100"
+            className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500"
           >
             −
           </button>
-          <span className="w-6 text-center text-sm">{qty}</span>
+          <span className="w-6 text-center text-sm text-gray-500">{qty}</span>
 
           <button
             type="button"
             onClick={() => setQty((q) => q + 1)}
-            className="h-8 w-8 rounded-full hover:bg-gray-100"
+            className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500"
           >
             +
           </button>
@@ -140,6 +141,7 @@ export default function ProductOptions({
           const willRemove = isWished;
           toggleWish({
             productId: product.id,
+            slug: product.slug, // ✅ مهم
             name: product.name,
             price: product.price,
             image: product.image,
@@ -152,7 +154,7 @@ export default function ProductOptions({
             "info",
           );
         }}
-        className="mt-3 w-full rounded-full border bg-white py-3 font-medium hover:bg-purple-50"
+        className="mt-3 w-full rounded-full border bg-white py-3 text-gray-500 font-medium hover:bg-purple-50"
       >
         {isWished ? "♥ In wishlist" : "♡ Add to wishlist"}
       </button>

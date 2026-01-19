@@ -31,13 +31,14 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem("yourtype_orders_v1");
-    if (raw) setOrders(JSON.parse(raw));
+    fetch("/api/orders")
+      .then((r) => r.json())
+      .then((data) => setOrders(data));
   }, []);
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-3xl border bg-white p-10 text-center shadow-sm">
+      <div className="rounded-3xl border bg-white p-10 text-center shadow-sm text-gray-500">
         <p className="text-xl font-semibold">No orders yet 🧾</p>
         <p className="mt-2 text-gray-600">
           Place your first order to see it here.
@@ -53,7 +54,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-gray-500">
       <div>
         <h1 className="text-2xl font-semibold">My Orders</h1>
         <p className="text-gray-600">Your recent orders (demo).</p>

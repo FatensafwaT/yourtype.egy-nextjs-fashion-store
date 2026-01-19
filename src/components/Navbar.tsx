@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const cartCount = useCartStore((s) => s.totalItems());
@@ -13,6 +14,8 @@ export default function Navbar() {
   const currentQ = searchParams.get("q") ?? "";
   const [q, setQ] = useState(currentQ);
   const wishCount = useWishlistStore((s) => s.count());
+  const { data, status } = useSession();
+  const isAuthed = status === "authenticated";
 
   useEffect(() => {
     setQ(currentQ);
@@ -43,14 +46,14 @@ export default function Navbar() {
         <div className="flex-1">
           <form
             onSubmit={submitSearch}
-            className="flex items-center gap-2 rounded-full border bg-white px-3 py-2"
+            className="flex items-center gap-2 rounded-full border text-gray-500 bg-white px-3 py-2"
           >
-            <span className="text-gray-400">⌕</span>
+            <span className="text-gray-400 ">⌕</span>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search cute items..."
-              className="w-full bg-transparent text-sm outline-none"
+              className="w-full bg-transparent text-sm  outline-none text-gray-500"
             />
           </form>
         </div>
@@ -59,7 +62,7 @@ export default function Navbar() {
         <nav className="flex items-center gap-3">
           <Link
             href="/cart"
-            className="relative rounded-full border bg-white px-3 py-2 text-sm hover:bg-pink-50"
+            className="relative rounded-full border bg-white px-3 py-2 text-sm text-gray-500 hover:bg-pink-50"
           >
             🛒 Cart
             {cartCount > 0 && (
@@ -70,7 +73,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/wishlist"
-            className="relative rounded-full border bg-white px-3 py-2 text-sm hover:bg-pink-50"
+            className="relative rounded-full border bg-white px-3 py-2 text-sm text-gray-500 hover:bg-pink-50"
           >
             💖 Wishlist
             {wishCount > 0 && (
@@ -80,12 +83,33 @@ export default function Navbar() {
             )}
           </Link>
 
-          <Link
-            href="/account"
-            className="rounded-full border bg-white px-3 py-2 text-sm hover:bg-pink-50"
-          >
-            👤 Account
-          </Link>
+          {status === "loading" ? (
+            <div className="rounded-full border bg-white px-4 py-2 text-sm text-gray-500">
+              Loading...
+            </div>
+          ) : isAuthed ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/account"
+                className="rounded-full border bg-white px-4 py-2 text-sm text-gray-500 hover:bg-pink-50"
+              >
+                👤 {data?.user?.name ?? "Account"}
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="rounded-full border bg-white px-4 py-2 text-sm text-gray-500 hover:bg-pink-50"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="rounded-full border bg-white px-4 py-2 text-sm text-gray-500 hover:bg-pink-50"
+            >
+              👤 Login
+            </Link>
+          )}
         </nav>
       </div>
     </header>

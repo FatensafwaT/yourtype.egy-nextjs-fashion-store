@@ -10,7 +10,7 @@ export default function ProductCard({ product }: Props) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group rounded-3xl border bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group rounded-3xl border bg-white p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.99]"
     >
       {/* Image */}
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
@@ -24,7 +24,7 @@ export default function ProductCard({ product }: Props) {
       </div>
 
       {/* Info */}
-      <div className="mt-3 space-y-1">
+      <div className="mt-3 space-y-1 text-gray-500">
         <p className="text-xs text-gray-500">{product.category}</p>
         <h3 className="font-medium leading-snug">{product.name}</h3>
         <p className="font-semibold text-pink-500">{product.price} EGP</p>

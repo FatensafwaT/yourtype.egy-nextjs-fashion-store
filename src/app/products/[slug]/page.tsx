@@ -1,9 +1,49 @@
-import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/data/products";
 import ProductOptions from "@/components/ProductOptions";
 import ProductGallery from "@/components/ProductGallery";
 import ProductCard from "@/components/ProductCard";
+import { headers } from "next/headers";
+
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  price: number;
+  images: string[];
+  colors: string[];
+  sizes: string[];
+};
+
+async function getBaseUrl() {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  return host ? `${proto}://${host}` : "http://localhost:3000";
+}
+
+async function getProduct(slug: string) {
+  const base = await getBaseUrl();
+  const res = await fetch(`${base}/api/products/${encodeURIComponent(slug)}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return null;
+  return (await res.json()) as Product;
+}
+
+async function getRelated(category: string, excludeId: string) {
+  const base = await getBaseUrl();
+  const res = await fetch(
+    `${base}/api/products?category=${encodeURIComponent(category)}`,
+    { cache: "no-store" },
+  );
+
+  if (!res.ok) return [] as Product[];
+  const list = (await res.json()) as Product[];
+
+  return list.filter((p) => p.id !== excludeId).slice(0, 3);
+}
 
 export default async function ProductDetailsPage({
   params,
@@ -11,10 +51,8 @@ export default async function ProductDetailsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
-  const related = products
-    .filter((p) => p.id !== product?.id && p.category === product?.category)
-    .slice(0, 3);
+
+  const product = await getProduct(slug);
 
   if (!product) {
     return (
@@ -29,6 +67,8 @@ export default async function ProductDetailsPage({
       </div>
     );
   }
+
+  const related = await getRelated(product.category, product.id);
 
   return (
     <div className="space-y-6">
@@ -58,15 +98,7 @@ export default async function ProductDetailsPage({
               {product.price} EGP
             </p>
 
-            <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
-              <span className="rounded-full bg-pink-50 px-3 py-1">New</span>
-              <span className="rounded-full bg-purple-50 px-3 py-1">
-                Pastel
-              </span>
-              <span className="rounded-full bg-gray-100 px-3 py-1">
-                In stock
-              </span>
-            </div>
+            
           </div>
 
           {/* Variant box */}
@@ -75,6 +107,7 @@ export default async function ProductDetailsPage({
             sizes={product.sizes}
             product={{
               id: product.id,
+              slug: product.slug, 
               name: product.name,
               price: product.price,
               image: product.images[0],
@@ -103,6 +136,7 @@ export default async function ProductDetailsPage({
           </div>
         </div>
       </div>
+
       {related.length > 0 && (
         <section className="mt-10">
           <div className="mb-4 flex items-center justify-between">
@@ -117,7 +151,7 @@ export default async function ProductDetailsPage({
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p as any} />
             ))}
           </div>
         </section>
