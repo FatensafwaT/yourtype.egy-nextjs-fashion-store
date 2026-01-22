@@ -63,7 +63,7 @@ export default function RegisterClient() {
 
     setSuccess("Account created successfully 🎉");
 
-    // بعد نجاح التسجيل يوديه للـ login ومعاه callbackUrl
+
     setTimeout(() => {
       router.push(loginHref);
     }, 600);

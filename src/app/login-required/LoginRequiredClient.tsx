@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 export default function LoginRequiredClient() {
   const sp = useSearchParams();
 
-  // مثال: /login-required?next=/checkout
+
   const next = sp.get("next") || "/checkout";
 
   const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(
