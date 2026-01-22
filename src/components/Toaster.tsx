@@ -21,7 +21,7 @@ export default function Toaster() {
             {t.type === "success" ? "✅ " : "ℹ️ "}
             {t.message}
           </p>
-          <p className="mt-1 text-xs text-gray-500">Tap to dismiss</p>
+          
         </button>
       ))}
     </div>

@@ -8,6 +8,8 @@ import { useCartStore } from "@/store/cart";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MotionPage from "@/components/MotionPage";
+import { useSession } from "next-auth/react";
+
 const schema = z.object({
   fullName: z.string().min(3, "Please enter your full name"),
   phone: z
@@ -29,6 +31,9 @@ export default function CheckoutPage() {
   const clear = useCartStore((s) => s.clear);
   const router = useRouter();
 
+  //  auth guard 
+  const { status } = useSession();
+
   const {
     register,
     handleSubmit,
@@ -45,6 +50,16 @@ export default function CheckoutPage() {
   const payment = watch("payment");
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace(
+        `/auth/login?callbackUrl=${encodeURIComponent(
+          "/checkout",
+        )}&reason=login_required`,
+      );
+    }
+  }, [status, router]);
+
+  useEffect(() => {
     const raw = localStorage.getItem("yourtype_checkout_address_v1");
     if (!raw) return;
 
@@ -56,6 +71,18 @@ export default function CheckoutPage() {
       if (saved.address) setValue("address", saved.address);
     } catch {}
   }, [setValue]);
+
+  if (status === "loading") {
+    return (
+      <div className="rounded-3xl border bg-white p-10 text-center shadow-sm text-gray-500">
+        Loading...
+      </div>
+    );
+  }
+
+  if (status !== "authenticated") {
+    return null;
+  }
 
   if (items.length === 0) {
     return (
@@ -80,7 +107,6 @@ export default function CheckoutPage() {
       address: data.address,
     };
 
-    // optional: still keep address in localStorage (UX nice)
     localStorage.setItem(
       "yourtype_checkout_address_v1",
       JSON.stringify(addressToSave),
@@ -260,9 +286,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <p className="mt-4 text-xs text-gray-500">
-            checkout (no real payment).
-          </p>
+          <p className="mt-4 text-xs text-gray-500">checkout .</p>
         </div>
       </div>
     </MotionPage>

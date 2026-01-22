@@ -1,12 +1,15 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-function filePath(name: "users" | "orders") {
+
+export type DBName = "users" | "orders" | "cart" | "wishlist";
+
+function filePath(name: DBName) {
   return path.join(process.cwd(), "src", "lib", "db", `${name}.json`);
 }
 
 export async function readJson<T>(
-  name: "users" | "orders",
+  name: DBName,
   fallback: T,
 ): Promise<T> {
   try {
@@ -17,6 +20,13 @@ export async function readJson<T>(
   }
 }
 
-export async function writeJson<T>(name: "users" | "orders", data: T) {
-  await fs.writeFile(filePath(name), JSON.stringify(data, null, 2), "utf-8");
+export async function writeJson<T>(
+  name: DBName,
+  data: T,
+) {
+  await fs.writeFile(
+    filePath(name),
+    JSON.stringify(data, null, 2),
+    "utf-8",
+  );
 }

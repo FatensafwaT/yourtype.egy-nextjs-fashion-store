@@ -1,8 +1,11 @@
 "use client";
+
 import { useWishlistStore } from "@/store/wishlist";
 import { useMemo, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { useToastStore } from "@/store/toast";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function ProductOptions({
   colors,
@@ -31,17 +34,28 @@ export default function ProductOptions({
   const selectedColorLabel = useMemo(() => selectedColor, [selectedColor]);
 
   const toast = useToastStore((s) => s.push);
+  const router = useRouter();
+  const { status } = useSession();
+
+  function addCurrentVariantToCart() {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      color: selectedColor,
+      size: selectedSize,
+      qty,
+    });
+  }
 
   return (
     <div className="rounded-3xl border bg-white p-5 shadow-sm">
       {/* Colors */}
       <div>
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-500">Color</p>
-          <span className="text-xs text-gray-500">Selected</span>
-        </div>
+        <p className="text-sm font-medium text-gray-500">Color</p>
 
-        <div className="mt-2 flex flex-wrap gap-2 text-gray-500">
+        <div className="mt-2 flex flex-wrap gap-2">
           {colors.map((c) => {
             const isActive = c === selectedColor;
             return (
@@ -64,14 +78,9 @@ export default function ProductOptions({
 
       {/* Sizes */}
       <div className="mt-5">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-500">Size</p>
-          <button className="text-sm text-pink-500 hover:underline  text-gray-500">
-            Size guide
-          </button>
-        </div>
+        <p className="text-sm font-medium text-gray-500">Size</p>
 
-        <div className="mt-2 flex flex-wrap gap-2 text-gray-500">
+        <div className="mt-2 flex flex-wrap gap-2">
           {sizes.map((s) => {
             const isActive = s === selectedSize;
             return (
@@ -92,42 +101,33 @@ export default function ProductOptions({
         </div>
       </div>
 
-      {/* Quantity (UI) */}
+      {/* Quantity */}
       <div className="mt-5 flex items-center justify-between">
         <p className="text-sm font-medium text-gray-500">Quantity</p>
-        <div className="flex items-center gap-2 rounded-full border bg-white px-2 py-1">
+        <div className="flex items-center gap-2 rounded-full border px-2 py-1">
           <button
             type="button"
             onClick={() => setQty((q) => Math.max(1, q - 1))}
-            className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500"
+            className="h-8 w-8 rounded-full hover:bg-gray-100"
           >
             −
           </button>
-          <span className="w-6 text-center text-sm text-gray-500">{qty}</span>
-
+          <span className="w-6 text-center text-sm">{qty}</span>
           <button
             type="button"
             onClick={() => setQty((q) => q + 1)}
-            className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-500"
+            className="h-8 w-8 rounded-full hover:bg-gray-100"
           >
             +
           </button>
         </div>
       </div>
 
-      {/* CTA */}
+      {/* Add to cart */}
       <button
         type="button"
         onClick={() => {
-          addItem({
-            productId: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            color: selectedColor,
-            size: selectedSize,
-            qty,
-          });
+          addCurrentVariantToCart();
           toast("Added to cart");
         }}
         className="mt-5 w-full rounded-full bg-pink-400 py-3 font-medium text-white hover:bg-pink-500"
@@ -135,13 +135,39 @@ export default function ProductOptions({
         Add to cart
       </button>
 
+      {/* Buy it now */}
+      <button
+        type="button"
+        onClick={() => {
+         
+          addCurrentVariantToCart();
+
+
+          if (status !== "authenticated") {
+            router.push(
+              `/auth/login?callbackUrl=${encodeURIComponent(
+                "/checkout",
+              )}&reason=login_required`,
+            );
+            return;
+          }
+
+      
+          router.push("/checkout");
+        }}
+        className="mt-3 w-full rounded-full bg-pink-400 py-3 font-medium text-white hover:bg-pink-500"
+      >
+        Buy it now
+      </button>
+
+      {/* Wishlist */}
       <button
         type="button"
         onClick={() => {
           const willRemove = isWished;
           toggleWish({
             productId: product.id,
-            slug: product.slug, // ✅ مهم
+            slug: product.slug,
             name: product.name,
             price: product.price,
             image: product.image,
@@ -154,7 +180,7 @@ export default function ProductOptions({
             "info",
           );
         }}
-        className="mt-3 w-full rounded-full border bg-white py-3 text-gray-500 font-medium hover:bg-purple-50"
+        className="mt-4 w-full rounded-full border bg-white py-3 font-medium text-gray-500 hover:bg-purple-50"
       >
         {isWished ? "♥ In wishlist" : "♡ Add to wishlist"}
       </button>

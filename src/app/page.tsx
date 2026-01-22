@@ -21,19 +21,34 @@ async function getBaseUrl() {
   return host ? `${proto}://${host}` : "http://localhost:3000";
 }
 
-async function getProducts() {
+async function getProducts(page = 1, limit = 12) {
   const base = await getBaseUrl();
-  const res = await fetch(`${base}/api/products`, { cache: "no-store" });
-  if (!res.ok) return [] as Product[];
-  return (await res.json()) as Product[];
+  const res = await fetch(`${base}/api/products?page=${page}&limit=${limit}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return { items: [] as Product[], meta: null as any };
+
+  const data = await res.json();
+  return data as {
+    items: Product[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasPrev: boolean;
+      hasNext: boolean;
+    };
+  };
 }
 
 export default async function HomePage() {
-  const products = await getProducts();
+ const { items: products, meta } = await getProducts(1, 12);
+
 
   const heroProducts = products.slice(0, 2);
-  const newArrivals = products.slice(0, 9); // غيّري الرقم زي ما تحبي
-
+  const newArrivals = products.slice(0, 9); 
   return (
     <MotionPage>
       <div className="space-y-12">

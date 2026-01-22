@@ -99,10 +99,10 @@ function pickMany<T>(arr: T[], i: number, count: number) {
 }
 
 async function main() {
-  // ✅ لو عايزة كل مرة يبدأ من جديد (صفحة مليانة وتوزيع واضح)
+ 
   await prisma.product.deleteMany();
 
-  const itemsPerCategory = 12; // 4 categories * 12 = 48 products
+  const itemsPerCategory = 12; 
 
   const products = [];
 
@@ -115,7 +115,7 @@ async function main() {
       const name = `${adj} ${baseName}`;
       const slug = `${slugify(name)}-${category.toLowerCase()}-${i + 1}`;
 
-      // سعر منطقي حسب الفئة
+      
       const basePrice =
         category === "Accessories"
           ? 199
@@ -134,7 +134,7 @@ async function main() {
 
       const sizes = SIZE_SETS[category];
 
-      // 3 صور لكل منتج (seed مختلف)
+      
       const imgSeed = `${slugify(category)}-${i + 1}-${c + 1}`;
       const images = [
         `https://picsum.photos/seed/${imgSeed}-a/1200/1500`,
@@ -154,10 +154,10 @@ async function main() {
     }
   }
 
-  // ✅ insert
+  
   await prisma.product.createMany({ data: products });
 
-  console.log(`✅ Seed completed: inserted ${products.length} products`);
+  console.log(` Seed completed: inserted ${products.length} products`);
 }
 
 main()

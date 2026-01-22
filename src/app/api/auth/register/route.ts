@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { addUser, userExists } from "@/lib/users";
-import { registerSchema } from "@/lib/validation/auth";
+import { registerSchema } from "@/lib/validations/auth";
 import { z } from "zod";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // ✅ Validation (email formula + password rules + name length...)
     const { name, email, password } = registerSchema.parse(body);
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -23,7 +22,7 @@ export async function POST(req: Request) {
     const passwordHash = await bcrypt.hash(password, 10);
 
     await addUser({
-      id: crypto.randomUUID(), // ✅ بدل Math.random()
+      id: crypto.randomUUID(), 
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
-    // ✅ Zod validation errors
+    //  Zod validation errors
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         {

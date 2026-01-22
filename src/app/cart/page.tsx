@@ -4,7 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart";
 import MotionPage from "@/components/MotionPage";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 export default function CartPage() {
+  const router = useRouter();
+  const { status } = useSession();
+
   const items = useCartStore((s) => s.items);
   const incQty = useCartStore((s) => s.incQty);
   const decQty = useCartStore((s) => s.decQty);
@@ -13,10 +19,20 @@ export default function CartPage() {
   const totalPrice = useCartStore((s) => s.totalPrice());
   const clear = useCartStore((s) => s.clear);
 
+  function goCheckout() {
+    if (status !== "authenticated") {
+      router.push("/login-required?next=/checkout");
+      return;
+    }
+    router.push("/checkout");
+  }
+
   if (items.length === 0) {
     return (
       <div className="rounded-3xl border bg-white p-10 text-center shadow-sm">
-        <p className="text-xl font-semibold text-gray-500">Your cart is empty 🥺</p>
+        <p className="text-xl font-semibold text-gray-500">
+          Your cart is empty 🥺
+        </p>
         <p className="mt-2 text-gray-600">Let’s add something cute.</p>
         <Link
           href="/products"
@@ -31,7 +47,7 @@ export default function CartPage() {
   return (
     <MotionPage>
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4 lg:col-span-2">
           <div className="flex items-end justify-between">
             <div>
               <h1 className="text-2xl font-semibold">Cart</h1>
@@ -70,7 +86,7 @@ export default function CartPage() {
                         Size: <span className="font-medium">{item.size}</span> •
                         Color:{" "}
                         <span
-                          className="inline-block h-3 w-3 rounded-full border align-middle mx-1"
+                          className="mx-1 inline-block h-3 w-3 rounded-full border align-middle"
                           style={{ backgroundColor: item.color }}
                         />
                       </p>
@@ -114,7 +130,7 @@ export default function CartPage() {
         </div>
 
         {/* Summary */}
-        <div className="rounded-3xl border bg-white p-6 shadow-sm h-fit">
+        <div className="h-fit rounded-3xl border bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Summary</h2>
 
           <div className="mt-4 space-y-2 text-sm">
@@ -127,18 +143,26 @@ export default function CartPage() {
               <span className="font-medium">{totalPrice} EGP</span>
             </div>
 
-            <div className="pt-3 border-t flex justify-between text-base">
+            <div className="flex justify-between border-t pt-3 text-base">
               <span className="font-semibold">Total</span>
               <span className="font-semibold">{totalPrice} EGP</span>
             </div>
           </div>
 
-          <Link
-            href="/checkout"
+          {/*  Checkout button */}
+          <button
+            type="button"
+            onClick={goCheckout}
             className="mt-5 block w-full rounded-full bg-pink-400 py-3 text-center font-medium text-white hover:bg-pink-500"
           >
             Checkout
-          </Link>
+          </button>
+
+          {status !== "authenticated" && (
+            <p className="mt-2 text-center text-xs text-gray-500">
+              You can shop as a guest — login is required only at checkout.
+            </p>
+          )}
 
           <Link
             href="/products"

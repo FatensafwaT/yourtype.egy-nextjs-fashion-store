@@ -4,6 +4,7 @@ import ProductGallery from "@/components/ProductGallery";
 import ProductCard from "@/components/ProductCard";
 import { headers } from "next/headers";
 
+
 type Product = {
   id: string;
   slug: string;
@@ -34,13 +35,16 @@ async function getProduct(slug: string) {
 
 async function getRelated(category: string, excludeId: string) {
   const base = await getBaseUrl();
+
   const res = await fetch(
-    `${base}/api/products?category=${encodeURIComponent(category)}`,
+    `${base}/api/products?category=${encodeURIComponent(category)}&page=1&limit=50`,
     { cache: "no-store" },
   );
 
   if (!res.ok) return [] as Product[];
-  const list = (await res.json()) as Product[];
+
+  const data = (await res.json()) as { items: Product[]; meta: any };
+  const list = data.items;
 
   return list.filter((p) => p.id !== excludeId).slice(0, 3);
 }
@@ -97,8 +101,6 @@ export default async function ProductDetailsPage({
             <p className="mt-3 text-xl font-semibold text-pink-500">
               {product.price} EGP
             </p>
-
-            
           </div>
 
           {/* Variant box */}
@@ -107,7 +109,7 @@ export default async function ProductDetailsPage({
             sizes={product.sizes}
             product={{
               id: product.id,
-              slug: product.slug, 
+              slug: product.slug,
               name: product.name,
               price: product.price,
               image: product.images[0],

@@ -21,7 +21,7 @@ export const useToastStore = create<ToastState>((set) => ({
       const id = crypto.randomUUID?.() ?? `${Date.now()}_${Math.random()}`;
       const toast: Toast = { id, message, type };
 
-      // auto-dismiss after 2.5s
+      
       setTimeout(() => {
         set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
       }, 2500);

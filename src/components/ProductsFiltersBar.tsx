@@ -19,7 +19,7 @@ export default function ProductsFiltersBar({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ✅ URL هو المصدر الحقيقي
+
   const q = (searchParams.get("q") ?? "").trim();
   const sort = searchParams.get("sort") ?? "new";
   const category = searchParams.get("category") ?? "all";
@@ -43,6 +43,12 @@ export default function ProductsFiltersBar({
       else params.set(key, value);
     });
 
+
+    params.set("page", "1");
+
+   
+    if (!params.get("limit")) params.set("limit", "12");
+
     const next = params.toString();
     router.replace(next ? `/products?${next}` : "/products", { scroll: false });
   }
@@ -62,7 +68,7 @@ export default function ProductsFiltersBar({
                 <span className="font-medium text-gray-800">“{q}”</span>
               </>
             ) : (
-              "Cute pastel pieces you’ll love."
+              "Cute pieces you’ll love."
             )}
           </p>
         </div>
@@ -87,7 +93,7 @@ export default function ProductsFiltersBar({
 
           {hasActiveFilters && (
             <button
-              onClick={() => router.replace("/products")}
+              onClick={() => router.replace("/products?page=1&limit=12")}
               className="rounded-full border bg-white px-4 py-2 text-sm hover:bg-pink-50"
             >
               Clear

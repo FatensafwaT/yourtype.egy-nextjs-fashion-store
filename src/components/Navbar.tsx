@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
 import { useSession, signOut } from "next-auth/react";
+import NavDrawer from "./NavDrawer";
 
 export default function Navbar() {
   const cartCount = useCartStore((s) => s.totalItems());
@@ -34,8 +35,10 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b bg-white/70 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+        <NavDrawer />
+
         {/* Logo */}
         <Link href="/" className="text-lg font-semibold">
           <span className="text-pink-500">YourType</span>
@@ -46,14 +49,14 @@ export default function Navbar() {
         <div className="flex-1">
           <form
             onSubmit={submitSearch}
-            className="flex items-center gap-2 rounded-full border text-gray-500 bg-white px-3 py-2"
+            className="flex items-center gap-2 rounded-full border bg-white px-3 py-2 text-gray-500"
           >
-            <span className="text-gray-400 ">⌕</span>
+            <span className="text-gray-400">⌕</span>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search cute items..."
-              className="w-full bg-transparent text-sm  outline-none text-gray-500"
+              className="w-full bg-transparent text-sm text-gray-500 outline-none"
             />
           </form>
         </div>
@@ -71,6 +74,7 @@ export default function Navbar() {
               </span>
             )}
           </Link>
+
           <Link
             href="/wishlist"
             className="relative rounded-full border bg-white px-3 py-2 text-sm text-gray-500 hover:bg-pink-50"
@@ -95,8 +99,56 @@ export default function Navbar() {
               >
                 👤 {data?.user?.name ?? "Account"}
               </Link>
+
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={async () => {
+                  try {
+                    const cartItems = useCartStore.getState().items;
+                    const wishItems = useWishlistStore.getState().items;
+
+                    await Promise.all([
+                      fetch("/api/cart", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          items: cartItems.map((x) => ({
+                            productId: x.productId,
+                            name: x.name,
+                            price: x.price,
+                            image: x.image,
+                            color: x.color,
+                            size: x.size,
+                            qty: x.qty,
+                          })),
+                        }),
+                      }),
+                      fetch("/api/wishlist", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          items: wishItems.map((x) => ({
+                            productId: x.productId,
+                            slug: x.slug,
+                            name: x.name,
+                            price: x.price,
+                            image: x.image,
+                            color: x.color,
+                            size: x.size,
+                          })),
+                        }),
+                      }),
+                    ]);
+                  } catch (e) {
+                    console.error("Save before logout failed:", e);
+                  }
+
+              
+                  useCartStore.getState().clear();
+                  useWishlistStore.getState().clear();
+
+                
+                  await signOut({ callbackUrl: "/" });
+                }}
                 className="rounded-full border bg-white px-4 py-2 text-sm text-gray-500 hover:bg-pink-50"
               >
                 Logout

@@ -2,9 +2,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type WishItem = {
-  id: string; // unique per variant (product+color+size)
+  id: string; 
   productId: string;
-  slug: string; 
+  slug: string;
   name: string;
   price: number;
   image: string;
@@ -12,9 +12,9 @@ export type WishItem = {
   size: string;
 };
 
-
 type WishState = {
   items: WishItem[];
+  setItems: (items: WishItem[]) => void;
   toggle: (item: Omit<WishItem, "id">) => void;
   remove: (id: string) => void;
   has: (id: string) => boolean;
@@ -30,6 +30,9 @@ export const useWishlistStore = create<WishState>()(
   persist(
     (set, get) => ({
       items: [],
+
+     
+      setItems: (items) => set({ items: Array.isArray(items) ? items : [] }),
 
       toggle: (item) =>
         set((state) => {

@@ -97,7 +97,7 @@ export default function WishlistPage() {
                         qty: 1,
                       });
 
-                      remove(it.id); // remove same variant from wishlist
+                      remove(it.id); 
                       toast("Moved to cart");
                     }}
                     className="flex-1 rounded-full bg-pink-400 px-3 py-2 text-sm font-medium text-white hover:bg-pink-500"

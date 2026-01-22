@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema, type RegisterInput } from "@/lib/validation/auth";
+import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 
 export default function RegisterPage() {
   const {
@@ -15,7 +15,7 @@ export default function RegisterPage() {
   });
 
   async function onSubmit(values: RegisterInput) {
-    // هنا هنربطه بـ API بعدين
+   
     console.log(values);
   }
 
