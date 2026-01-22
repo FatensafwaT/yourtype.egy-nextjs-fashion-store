@@ -1,56 +1,30 @@
-// src/app/login-required/page.tsx
-"use client";
-
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import MotionPage from "@/components/MotionPage";
+import { Suspense } from "react";
+import LoginRequiredClient from "./LoginRequiredClient";
 
 export default function LoginRequiredPage() {
-  const sp = useSearchParams();
-  const next = sp.get("next") || "/checkout"; 
-
-  const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(next)}&reason=login_required`;
-  const registerHref = `/auth/register?callbackUrl=${encodeURIComponent(
-    next,
-  )}&reason=login_required`;
-
   return (
     <MotionPage>
-      <div className="mx-auto max-w-md rounded-3xl border bg-white p-10 text-center shadow-sm">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-pink-50 text-2xl">
-          🔒
-        </div>
-
-        <h1 className="mt-4 text-2xl font-semibold text-gray-800">
-          You must login first
-        </h1>
-        <p className="mt-2 text-sm text-gray-500">
-          Please login (or create an account) to continue checkout.
-        </p>
-
-        <div className="mt-6 space-y-3">
-          <Link
-            href={loginHref}
-            className="block w-full rounded-full bg-pink-400 py-3 text-sm font-medium text-white hover:bg-pink-500"
-          >
-            Login
-          </Link>
-
-          <Link
-            href={registerHref}
-            className="block w-full rounded-full border bg-white py-3 text-sm font-medium text-gray-700 hover:bg-pink-50"
-          >
-            Create account
-          </Link>
-        </div>
-
-        <Link
-          href="/products"
-          className="mt-5 block text-sm text-pink-500 hover:underline"
-        >
-          Back to shopping
-        </Link>
-      </div>
+      <Suspense fallback={<LoginRequiredSkeleton />}>
+        <LoginRequiredClient />
+      </Suspense>
     </MotionPage>
+  );
+}
+
+function LoginRequiredSkeleton() {
+  return (
+    <div className="mx-auto max-w-md rounded-3xl border bg-white p-10 text-center shadow-sm">
+      <div className="mx-auto h-12 w-12 rounded-full bg-gray-100" />
+      <div className="mx-auto mt-4 h-7 w-56 rounded bg-gray-100" />
+      <div className="mx-auto mt-3 h-4 w-72 rounded bg-gray-100" />
+
+      <div className="mt-6 space-y-3">
+        <div className="h-11 w-full rounded-full bg-pink-200" />
+        <div className="h-11 w-full rounded-full border bg-gray-50" />
+      </div>
+
+      <div className="mx-auto mt-5 h-4 w-32 rounded bg-gray-100" />
+    </div>
   );
 }
