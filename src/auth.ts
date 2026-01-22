@@ -11,8 +11,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(creds) {
-        const email = (creds?.email ?? "").toLowerCase().trim();
-        const password = creds?.password ?? "";
+        if (!creds) return null;
+
+        const email = String(creds.email ?? "")
+          .toLowerCase()
+          .trim();
+        const password = String(creds.password ?? "");
+
         if (!email || !password) return null;
 
         const user = await getUserByEmail(email);
@@ -21,7 +26,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
 
-        return { id: user.id, email: user.email, name: user.name };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        };
       },
     }),
   ],
