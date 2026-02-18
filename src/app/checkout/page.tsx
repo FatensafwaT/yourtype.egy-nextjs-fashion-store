@@ -25,14 +25,25 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const { status } = useSession();
+
   const items = useCartStore((s) => s.items);
   const totalItems = useCartStore((s) => s.totalItems());
   const totalPrice = useCartStore((s) => s.totalPrice());
   const clear = useCartStore((s) => s.clear);
-  const router = useRouter();
+  const hasHydrated = useCartStore((s) => s.hasHydrated);
 
-  //  auth guard 
-  const { status } = useSession();
+  // ✅ Redirect لو مش عامل login
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace(
+        `/auth/login?callbackUrl=${encodeURIComponent(
+          "/checkout",
+        )}&reason=login_required`,
+      );
+    }
+  }, [status, router]);
 
   const {
     register,
@@ -49,16 +60,7 @@ export default function CheckoutPage() {
 
   const payment = watch("payment");
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace(
-        `/auth/login?callbackUrl=${encodeURIComponent(
-          "/checkout",
-        )}&reason=login_required`,
-      );
-    }
-  }, [status, router]);
-
+  // ✅ restore address
   useEffect(() => {
     const raw = localStorage.getItem("yourtype_checkout_address_v1");
     if (!raw) return;
@@ -72,7 +74,7 @@ export default function CheckoutPage() {
     } catch {}
   }, [setValue]);
 
-  if (status === "loading") {
+  if (status === "loading" || !hasHydrated) {
     return (
       <div className="rounded-3xl border bg-white p-10 text-center shadow-sm text-gray-500">
         Loading...
@@ -227,6 +229,7 @@ export default function CheckoutPage() {
                   Card
                 </label>
               </div>
+
               {errors.payment && (
                 <p className="mt-1 text-xs text-red-500">
                   {errors.payment.message}

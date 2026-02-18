@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type LastOrder = {
   orderId: string;
@@ -10,16 +10,21 @@ type LastOrder = {
   placedAt: string;
 };
 
-export default function CheckoutSuccessPage() {
-  const [order, setOrder] = useState<LastOrder | null>(null);
-
-  useEffect(() => {
+function readLastOrder(): LastOrder | null {
+  try {
     const raw = localStorage.getItem("yourtype_last_order_v1");
-    if (raw) setOrder(JSON.parse(raw));
-  }, []);
+    if (!raw) return null;
+    return JSON.parse(raw) as LastOrder;
+  } catch {
+    return null;
+  }
+}
+
+export default function CheckoutSuccessPage() {
+  const [order] = useState<LastOrder | null>(() => readLastOrder());
 
   return (
-    <div className="rounded-3xl border bg-white p-10 text-center shadow-sm">
+    <div className="rounded-3xl border bg-white p-10 text-center shadow-sm text-gray-500">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-pink-50 text-2xl">
         ✅
       </div>

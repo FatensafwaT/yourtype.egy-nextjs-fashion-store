@@ -80,7 +80,7 @@ export default function ProductOptions({
       <div className="mt-5">
         <p className="text-sm font-medium text-gray-500">Size</p>
 
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2 text-gray-500">
           {sizes.map((s) => {
             const isActive = s === selectedSize;
             return (
@@ -102,7 +102,7 @@ export default function ProductOptions({
       </div>
 
       {/* Quantity */}
-      <div className="mt-5 flex items-center justify-between">
+      <div className="mt-5 flex items-center justify-between text-gray-500">
         <p className="text-sm font-medium text-gray-500">Quantity</p>
         <div className="flex items-center gap-2 rounded-full border px-2 py-1">
           <button

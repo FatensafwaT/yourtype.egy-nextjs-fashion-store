@@ -9,14 +9,25 @@ import { useSession, signOut } from "next-auth/react";
 import NavDrawer from "./NavDrawer";
 
 export default function Navbar() {
-  const cartCount = useCartStore((s) => s.totalItems());
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentQ = searchParams.get("q") ?? "";
   const [q, setQ] = useState(currentQ);
-  const wishCount = useWishlistStore((s) => s.count());
+
   const { data, status } = useSession();
   const isAuthed = status === "authenticated";
+
+  // ✅ hydration flags
+  const cartHydrated = useCartStore((s) => s.hasHydrated);
+  const wishHydrated = useWishlistStore((s) => s.hasHydrated);
+
+  // ✅ counts
+  const cartCountRaw = useCartStore((s) => s.totalItems());
+  const wishCountRaw = useWishlistStore((s) => s.count());
+
+  // ✅ prevent any SSR/CSR mismatch: show 0 until hydrated
+  const cartCount = cartHydrated ? cartCountRaw : 0;
+  const wishCount = wishHydrated ? wishCountRaw : 0;
 
   useEffect(() => {
     setQ(currentQ);
@@ -30,7 +41,6 @@ export default function Navbar() {
       router.push("/products");
       return;
     }
-
     router.push(`/products?q=${encodeURIComponent(value)}`);
   }
 
@@ -39,13 +49,11 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <NavDrawer />
 
-        {/* Logo */}
         <Link href="/" className="text-lg font-semibold">
           <span className="text-pink-500">YourType</span>
           <span className="text-purple-400">.egy</span>
         </Link>
 
-        {/* Search */}
         <div className="flex-1">
           <form
             onSubmit={submitSearch}
@@ -61,7 +69,6 @@ export default function Navbar() {
           </form>
         </div>
 
-        {/* Actions */}
         <nav className="flex items-center gap-3">
           <Link
             href="/cart"
@@ -102,51 +109,6 @@ export default function Navbar() {
 
               <button
                 onClick={async () => {
-                  try {
-                    const cartItems = useCartStore.getState().items;
-                    const wishItems = useWishlistStore.getState().items;
-
-                    await Promise.all([
-                      fetch("/api/cart", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          items: cartItems.map((x) => ({
-                            productId: x.productId,
-                            name: x.name,
-                            price: x.price,
-                            image: x.image,
-                            color: x.color,
-                            size: x.size,
-                            qty: x.qty,
-                          })),
-                        }),
-                      }),
-                      fetch("/api/wishlist", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          items: wishItems.map((x) => ({
-                            productId: x.productId,
-                            slug: x.slug,
-                            name: x.name,
-                            price: x.price,
-                            image: x.image,
-                            color: x.color,
-                            size: x.size,
-                          })),
-                        }),
-                      }),
-                    ]);
-                  } catch (e) {
-                    console.error("Save before logout failed:", e);
-                  }
-
-              
-                  useCartStore.getState().clear();
-                  useWishlistStore.getState().clear();
-
-                
                   await signOut({ callbackUrl: "/" });
                 }}
                 className="rounded-full border bg-white px-4 py-2 text-sm text-gray-500 hover:bg-pink-50"

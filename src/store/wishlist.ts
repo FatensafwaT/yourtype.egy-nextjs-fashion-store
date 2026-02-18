@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export type WishItem = {
-  id: string; 
+  id: string;
   productId: string;
   slug: string;
   name: string;
@@ -14,6 +13,10 @@ export type WishItem = {
 
 type WishState = {
   items: WishItem[];
+
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
+
   setItems: (items: WishItem[]) => void;
   toggle: (item: Omit<WishItem, "id">) => void;
   remove: (id: string) => void;
@@ -26,37 +29,59 @@ function makeId(productId: string, color: string, size: string) {
   return `${productId}_${color}_${size}`;
 }
 
-export const useWishlistStore = create<WishState>()(
-  persist(
-    (set, get) => ({
-      items: [],
+function normalizeItem(x: any): WishItem | null {
+  if (!x) return null;
 
-     
-      setItems: (items) => set({ items: Array.isArray(items) ? items : [] }),
+  const productId = String(x.productId ?? "");
+  const color = String(x.color ?? "");
+  const size = String(x.size ?? "");
+  const slug = String(x.slug ?? "");
+  const name = String(x.name ?? "");
+  const image = String(x.image ?? "");
+  const price = Number(x.price ?? 0);
 
-      toggle: (item) =>
-        set((state) => {
-          const id = makeId(item.productId, item.color, item.size);
-          const exists = state.items.some((x) => x.id === id);
+  if (!productId || !color || !size || !slug || !name || !image) return null;
 
-          if (exists) {
-            return { items: state.items.filter((x) => x.id !== id) };
-          }
+  const id = String(x.id ?? makeId(productId, color, size));
 
-          return { items: [{ ...item, id }, ...state.items] };
-        }),
+  return {
+    id,
+    productId,
+    slug,
+    name,
+    price: Number.isFinite(price) ? price : 0,
+    image,
+    color,
+    size,
+  };
+}
 
-      remove: (id) =>
-        set((state) => ({
-          items: state.items.filter((x) => x.id !== id),
-        })),
+export const useWishlistStore = create<WishState>()((set, get) => ({
+  items: [],
 
-      has: (id) => get().items.some((x) => x.id === id),
+  hasHydrated: false,
+  setHasHydrated: (v) => set({ hasHydrated: v }),
 
-      count: () => get().items.length,
-
-      clear: () => set({ items: [] }),
+  setItems: (items) =>
+    set({
+      items: Array.isArray(items)
+        ? (items.map(normalizeItem).filter(Boolean) as WishItem[])
+        : [],
     }),
-    { name: "yourtype_wishlist_v1" },
-  ),
-);
+
+  toggle: (item) =>
+    set((state) => {
+      const id = makeId(item.productId, item.color, item.size);
+      const exists = state.items.some((x) => x.id === id);
+
+      if (exists) return { items: state.items.filter((x) => x.id !== id) };
+
+      return { items: [{ ...item, id }, ...state.items] };
+    }),
+
+  remove: (id) => set((state) => ({ items: state.items.filter((x) => x.id !== id) })),
+
+  has: (id) => get().items.some((x) => x.id === id),
+  count: () => get().items.length,
+  clear: () => set({ items: [] }),
+}));

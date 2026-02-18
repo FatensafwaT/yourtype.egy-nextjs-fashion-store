@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCartStore } from "@/store/cart";
 
 export default function RegisterClient() {
   const router = useRouter();
@@ -16,6 +17,8 @@ export default function RegisterClient() {
 
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const items = useCartStore((s) => s.items);
 
   const {
     register,
@@ -31,9 +34,17 @@ export default function RegisterClient() {
     callbackUrl,
   )}&reason=${encodeURIComponent(reason ?? "")}`;
 
+  const persistGuestCart = () => {
+    try {
+      localStorage.setItem("guest_cart", JSON.stringify(items));
+    } catch {}
+  };
+
   async function onSubmit(values: RegisterInput) {
     setServerError(null);
     setSuccess(null);
+
+    persistGuestCart();
 
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -63,6 +74,7 @@ export default function RegisterClient() {
 
     setSuccess("Account created successfully 🎉");
 
+    persistGuestCart();
 
     setTimeout(() => {
       router.push(loginHref);
@@ -151,6 +163,7 @@ export default function RegisterClient() {
             <p>This email is already registered.</p>
             <Link
               href={loginHref}
+              onClick={persistGuestCart}
               className="inline-flex items-center justify-center rounded-full bg-pink-500 px-5 py-2 text-white hover:bg-pink-600"
             >
               Go to Login
@@ -160,6 +173,7 @@ export default function RegisterClient() {
 
         <Link
           href={loginHref}
+          onClick={persistGuestCart}
           className="block text-center text-sm text-pink-500 hover:underline"
         >
           Already have an account? Login

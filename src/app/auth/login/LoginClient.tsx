@@ -19,38 +19,37 @@ export default function LoginClient() {
 
   return (
     <div className="mx-auto max-w-md rounded-3xl border bg-white p-6 shadow-sm text-gray-500">
-      <h1 className="text-2xl font-semibold">Login</h1>
-      <p className="mt-1 text-sm text-gray-600">Welcome back 💖</p>
+      <h1 className="text-2xl font-semibold text-gray-500">Login</h1>
 
       {reason === "login_required" && (
-        <div className="mt-4 rounded-2xl border border-pink-200 bg-pink-50 px-4 py-3 text-sm text-gray-700">
+        <div className="mt-4 text-sm">
           🔒 You must login first to continue checkout.
         </div>
       )}
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 space-y-3 text-gray-300" >
         <input
-          className="w-full rounded-2xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-pink-200"
+          className="w-full rounded-2xl border px-4 py-3 text-gray-500"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
-          className="w-full rounded-2xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-pink-200"
-          placeholder="Password"
           type="password"
+          className="w-full rounded-2xl border px-4 py-3 text-gray-500"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {err && <p className="text-sm text-red-500">{err}</p>}
+        {err && <p className="text-red-500">{err}</p>}
 
         <button
           disabled={loading}
           onClick={async () => {
-            setErr(null);
             setLoading(true);
+            setErr(null);
 
             const res = await signIn("credentials", {
               email,
@@ -66,9 +65,9 @@ export default function LoginClient() {
               return;
             }
 
-            router.push(callbackUrl);
+            router.replace(callbackUrl);
           }}
-          className="w-full rounded-full bg-pink-400 py-3 font-medium text-white hover:bg-pink-500 disabled:opacity-60"
+          className="w-full rounded-full bg-pink-400 py-3 text-white"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
@@ -77,7 +76,7 @@ export default function LoginClient() {
           href={`/auth/register?callbackUrl=${encodeURIComponent(
             callbackUrl,
           )}&reason=${encodeURIComponent(reason ?? "")}`}
-          className="block text-center text-sm text-pink-500 hover:underline"
+          className="block text-center text-sm text-pink-500"
         >
           Create an account
         </Link>

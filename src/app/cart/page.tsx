@@ -46,7 +46,7 @@ export default function CartPage() {
 
   return (
     <MotionPage>
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 text-gray-500">
         <div className="space-y-4 lg:col-span-2">
           <div className="flex items-end justify-between">
             <div>
@@ -129,47 +129,26 @@ export default function CartPage() {
           ))}
         </div>
 
-        {/* Summary */}
         <div className="h-fit rounded-3xl border bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Summary</h2>
 
           <div className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Items</span>
+              <span>Items</span>
               <span>{totalItems}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium">{totalPrice} EGP</span>
-            </div>
-
-            <div className="flex justify-between border-t pt-3 text-base">
-              <span className="font-semibold">Total</span>
-              <span className="font-semibold">{totalPrice} EGP</span>
+              <span>Subtotal</span>
+              <span>{totalPrice} EGP</span>
             </div>
           </div>
 
-          {/*  Checkout button */}
           <button
-            type="button"
             onClick={goCheckout}
-            className="mt-5 block w-full rounded-full bg-pink-400 py-3 text-center font-medium text-white hover:bg-pink-500"
+            className="mt-5 w-full rounded-full bg-pink-400 py-3 text-white hover:bg-pink-500"
           >
             Checkout
           </button>
-
-          {status !== "authenticated" && (
-            <p className="mt-2 text-center text-xs text-gray-500">
-              You can shop as a guest — login is required only at checkout.
-            </p>
-          )}
-
-          <Link
-            href="/products"
-            className="mt-3 block text-center text-sm text-pink-500 hover:underline"
-          >
-            Continue shopping
-          </Link>
         </div>
       </div>
     </MotionPage>

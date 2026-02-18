@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 function NavbarFallback() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-white/70 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b bg-white/70 backdrop-blur ">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <div className="h-10 w-10 rounded-full border bg-white" />
         <div className="h-6 w-28 rounded bg-gray-200" />

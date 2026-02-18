@@ -51,7 +51,7 @@ export default async function HomePage() {
   const newArrivals = products.slice(0, 9); 
   return (
     <MotionPage>
-      <div className="space-y-12">
+      <div className="space-y-12 ">
         {/* Hero */}
         <section className="rounded-3xl border bg-white p-8 shadow-sm">
           <div className="grid gap-6 md:grid-cols-2 md:items-center">

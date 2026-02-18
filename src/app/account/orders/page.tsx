@@ -57,7 +57,7 @@ export default function OrdersPage() {
     <div className="space-y-5 text-gray-500">
       <div>
         <h1 className="text-2xl font-semibold">My Orders</h1>
-        <p className="text-gray-600">Your recent orders (demo).</p>
+        <p className="text-gray-600">Your recent orders.</p>
       </div>
 
       {orders.map((order) => (
